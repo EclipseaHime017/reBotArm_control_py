@@ -15,7 +15,7 @@ from typing import Callable, List, Optional, Dict
 import numpy as np
 import yaml
 
-from motorbridge import Controller, Mode
+from motorbridge import Controller, Mode, CallError
 
 
 # ------------------------------------------------------------------
@@ -211,6 +211,8 @@ class RobotArm:
                 mot = ctrl.add_myactuator_motor(jc.motor_id, jc.feedback_id, jc.model)
             elif vendor == "robstride":
                 mot = ctrl.add_robstride_motor(jc.motor_id, jc.feedback_id, jc.model)
+            elif vendor == "hightorque":
+                mot = ctrl.add_hightorque_motor(jc.motor_id, jc.feedback_id, jc.model)
             else:
                 raise ValueError(f"Unsupported vendor: {vendor}")
             self._motor_map[jc.name] = mot
@@ -235,7 +237,6 @@ class RobotArm:
             retries: 每电机最大重试次数。
             poll_interval: 每次重试间隔（秒）。
         """
-        from motorbridge.errors import CallError
         if vendor is not None:
             vendors = [vendor]
         else:
@@ -371,7 +372,6 @@ class RobotArm:
             poll_interval: 每次轮询间隔（秒）。
             set_zero_delay: 每个电机设零后等待时间（秒）。
         """
-        from motorbridge.errors import CallError
         self.disable()
         time.sleep(0.3)
 
@@ -420,7 +420,6 @@ class RobotArm:
         Returns:
             是否成功设置零点。
         """
-        from motorbridge.errors import CallError
         if name not in self._motor_map:
             raise KeyError(f"Unknown joint: {name}")
 
@@ -464,11 +463,24 @@ class RobotArm:
             except Exception:
                 pass
 
+    def _ctrl_to_motors(self) -> Dict[any, List[any]]:
+        """返回 {Controller: [Motor, ...]} 反查表，用于逐控制器遍历其下所有电机。"""
+        m: Dict[any, List[any]] = {}
+        for jc in self._joints:
+            ctrl = self._ctrl_map[jc.vendor]
+            mot = self._motor_map[jc.name]
+            m.setdefault(ctrl, []).append(mot)
+        return m
+
     def _request_and_poll(self) -> None:
         """主动请求并轮询所有控制器的反馈（用于非控制循环场景）。"""
-        for ctrl in self._ctrl_map.values():
+        for ctrl, motors in self._ctrl_to_motors().items():
+            for mot in motors:
+                try:
+                    mot.request_feedback()
+                except Exception:
+                    pass
             try:
-                ctrl.request_feedback()
                 ctrl.poll_feedback_once()
             except Exception:
                 pass
@@ -553,7 +565,6 @@ class RobotArm:
     def _ensure_mode(self, name: str, mot: any, mode: Mode,
                      timeout_ms: int = 1000) -> bool:
         """对单个电机 ensure_mode，失败打印提示但不抛异常。"""
-        from motorbridge.errors import CallError
         try:
             mot.ensure_mode(mode, timeout_ms)
             return True
@@ -648,7 +659,6 @@ class RobotArm:
                               设为 True 可在控制循环中使用，让主线程
                               直接读取最新状态，避免总线争用导致的延迟。
         """
-        from motorbridge.errors import CallError
         n = self.num_joints
         pos = np.asarray(pos, dtype=np.float64).reshape(-1)
         if vel is None:
@@ -672,9 +682,13 @@ class RobotArm:
                 pass
 
         if request_feedback:
-            for ctrl in self._ctrl_map.values():
+            for ctrl, motors in self._ctrl_to_motors().items():
+                for mot in motors:
+                    try:
+                        mot.request_feedback()
+                    except Exception:
+                        pass
                 try:
-                    ctrl.request_feedback()
                     ctrl.poll_feedback_once()
                 except Exception:
                     pass
@@ -685,7 +699,6 @@ class RobotArm:
 
     def pos_vel(self, pos: np.ndarray,
                 vlim: Optional[np.ndarray] = None) -> None:
-        from motorbridge.errors import CallError
         pos = np.asarray(pos, dtype=np.float64).reshape(-1)
         if vlim is None:
             vlim = getattr(self, "_pv_vlim",
@@ -703,7 +716,6 @@ class RobotArm:
     # ------------------------------------------------------------------
 
     def set_vel(self, vel: np.ndarray) -> None:
-        from motorbridge.errors import CallError
         vel = np.asarray(vel, dtype=np.float64).reshape(-1)
         for i, jc in enumerate(self._joints):
             try:

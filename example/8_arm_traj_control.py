@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""轨迹规划交互控制示例。
+"""ArmEndPos 交互控制示例（轨迹规划模式）。
 
 用法:
     python example/8_arm_traj_control.py
@@ -16,15 +16,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from reBotArm_control_py.actuator import RobotArm
-from reBotArm_control_py.controllers import ArmTraj
+from reBotArm_control_py.controllers import ArmEndPos
 
 
 def main() -> None:
     arm = RobotArm()
-    arm_traj = ArmTraj(arm)
+    Arm_endpos_control = ArmEndPos(arm)
 
-    arm_traj.start()
-    print("--- 已启动轨迹控制器 ---\n")
+    Arm_endpos_control.start()
+    print("--- 已启动末端位置控制器 ---\n")
 
     while True:
         try:
@@ -40,17 +40,18 @@ def main() -> None:
         if line.lower() == "state":
             q, _, _ = arm.get_state()
             print(f"  当前关节 (rad): {[f'{v:+.3f}' for v in q]}")
-            print(f"  moving: {arm_traj._moving}  "
-                  f"traj_pts: {len(arm_traj._joint_traj)}  "
-                  f"idx: {arm_traj._traj_idx}")
+            print(f"  moving: {Arm_endpos_control._moving}  "
+                  f"traj_pts: {len(Arm_endpos_control._traj)}  "
+                  f"idx: {Arm_endpos_control._traj_idx}")
             continue
 
-        if line.lower() == "pos":
+        if line.lower() == "end_state":
             q, _, _ = arm.get_state()
             from reBotArm_control_py.kinematics import joint_to_pose
             pos, rpy = joint_to_pose(q)
-            print(f"  pos=[{pos[0]:+.3f} {pos[1]:+.3f} {pos[2]:+.3f}] m  "
-                  f"rpy=[{rpy[0]:+.2f} {rpy[1]:+.2f} {rpy[2]:+.2f}] rad")
+            px, py, pz = float(pos[0]), float(pos[1]), float(pos[2])
+            rx, ry, rz = float(rpy[0]), float(rpy[1]), float(rpy[2])
+            print(f"  pos=[{px:+.3f} {py:+.3f} {pz:+.3f}] m  rpy=[{rx:+.2f} {ry:+.2f} {rz:+.2f}] rad")
             continue
 
         try:
@@ -65,7 +66,7 @@ def main() -> None:
         yaw = vals[5] if len(vals) >= 6 else 0.0
         duration = vals[6] if len(vals) >= 7 else 2.0
 
-        ok = arm_traj.move_to_traj(
+        ok = Arm_endpos_control.move_to_traj(
             x=x, y=y, z=z,
             roll=roll, pitch=pitch, yaw=yaw,
             duration=duration,
@@ -73,7 +74,7 @@ def main() -> None:
         print(f"  -> ({x:+.3f}, {y:+.3f}, {z:+.3f})  "
               f"T={duration:.1f}s  {'ok' if ok else 'fail'}")
 
-    arm_traj.end()
+    Arm_endpos_control.end()
     print("\n完成。")
 
 

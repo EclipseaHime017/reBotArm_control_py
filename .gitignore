@@ -1,14 +1,16 @@
-# Python virtual environment
-.venv/
 
-# VS Code
-.vscode/
+# # Python virtual environment
+# .venv/
 
-# Python version
-.python-version
+# # VS Code
+# .vscode/
 
-# UV lock file
-uv.lock
+# # Python version
+# .python-version
 
-# pyproject.toml (local overrides)
-pyproject.toml
+# # UV lock file
+# uv.lock
+
+# # pyproject.toml (local overrides)
+# pyproject.toml
+

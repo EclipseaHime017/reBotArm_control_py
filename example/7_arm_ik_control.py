@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ArmIK 交互控制示例。
+"""ArmEndPos 交互控制示例（IK 模式）。
 
 用法:
     python example/7_arm_ik_control.py
@@ -16,15 +16,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from reBotArm_control_py.actuator import RobotArm
-from reBotArm_control_py.controllers import ArmIK
+from reBotArm_control_py.controllers import ArmEndPos
 
 
 def main() -> None:
     arm = RobotArm()
-    arm_ik = ArmIK(arm)
+    Arm_endpos_control = ArmEndPos(arm)
 
-    arm_ik.start()
-    print("--- 已启动 IK 控制器 ---\n")
+    Arm_endpos_control.start()
+    print("--- 已启动末端位置控制器 ---\n")
 
     while True:
         try:
@@ -40,15 +40,16 @@ def main() -> None:
         if line.lower() == "state":
             q, _, _ = arm.get_state()
             print(f"  当前关节 (rad): {[f'{v:+.3f}' for v in q]}")
-            print(f"  目标关节 (rad): {[f'{v:+.3f}' for v in arm_ik._q_target]}")
+            print(f"  目标关节 (rad): {[f'{v:+.3f}' for v in Arm_endpos_control._q_target]}")
             continue
 
-        if line.lower() == "pos":
+        if line.lower() == "end_state":
             q, _, _ = arm.get_state()
             from reBotArm_control_py.kinematics import joint_to_pose
             pos, rpy = joint_to_pose(q)
-            print(f"  pos=[{pos[0]:+.3f} {pos[1]:+.3f} {pos[2]:+.3f}] m  "
-                  f"rpy=[{rpy[0]:+.2f} {rpy[1]:+.2f} {rpy[2]:+.2f}] rad")
+            px, py, pz = float(pos[0]), float(pos[1]), float(pos[2])
+            rx, ry, rz = float(rpy[0]), float(rpy[1]), float(rpy[2])
+            print(f"  pos=[{px:+.3f} {py:+.3f} {pz:+.3f}] m  rpy=[{rx:+.2f} {ry:+.2f} {rz:+.2f}] rad")
             continue
 
         try:
@@ -62,12 +63,12 @@ def main() -> None:
         pitch = vals[4] if len(vals) >= 6 else 0.0
         yaw = vals[5] if len(vals) >= 6 else 0.0
 
-        ok = arm_ik.move_to_ik(x=x, y=y, z=z, roll=roll, pitch=pitch, yaw=yaw)
+        ok = Arm_endpos_control.move_to_ik(x=x, y=y, z=z, roll=roll, pitch=pitch, yaw=yaw)
         print(f"  -> ({x:+.3f}, {y:+.3f}, {z:+.3f})  "
               f"rpy=[{roll:+.2f} {pitch:+.2f} {yaw:+.2f}]  "
               f"{'ok' if ok else 'fail'}")
 
-    arm_ik.end()
+    Arm_endpos_control.end()
     print("\n完成。")
 
 

@@ -79,7 +79,7 @@ def joint_to_pose(
         其中 ``euler_xyz`` 为 ``[roll, pitch, yaw]``，单位：弧度。
     """
     model = load_robot_model()
-    _, rot, pos = compute_fk(model, q, frame_name=frame_name)
+    pos, rot, _ = compute_fk(model, q, frame_name=frame_name)
     euler_xyz = pin.rpy.matrixToRpy(rot)
     return pos, euler_xyz
 
