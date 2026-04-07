@@ -125,7 +125,7 @@ reBotArm_control_py/
 │   └── robot.yaml              # Joint parameter configuration
 ├── example/                    # Example programs
 │   ├── Debug Tools/
-│   │   ├── 0x01damiao_text.py      # Single motor console
+│   │   ├── 1_damiao_text.py        # Single motor console
 │   │   └── 2_zero_and_read.py      # Zero calibration
 │   ├── Position Control/
 │   │   ├── 3_mit_control.py        # MIT control
@@ -152,13 +152,13 @@ reBotArm_control_py/
 
 ### Debug Tools
 
-#### 1️⃣ Single Motor Console (`0x01damiao_text.py`)
+#### 1️⃣ Single Motor Console (`1_damiao_text.py`)
 
 Direct motorbridge SDK single motor testing with three control modes.
 
 **Usage**:
 ```bash
-uv run python example/0x01damiao_text.py
+uv run python example/1_damiao_text.py
 ```
 
 **Interactive Commands**:

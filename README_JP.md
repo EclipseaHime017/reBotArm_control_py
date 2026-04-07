@@ -125,7 +125,7 @@ reBotArm_control_py/
 │   └── robot.yaml              # 関節パラメータ設定
 ├── example/                    # サンプルプログラム
 │   ├── デバッグツール/
-│   │   ├── 0x01damiao_text.py      # 単一モーターコンソール
+│   │   ├── 1_damiao_text.py        # 単一モーターコンソール
 │   │   └── 2_zero_and_read.py      # ゼロキャリブレーション
 │   ├── 位置制御/
 │   │   ├── 3_mit_control.py        # MIT 制御
@@ -152,13 +152,13 @@ reBotArm_control_py/
 
 ### デバッグツール
 
-#### 1️⃣ 単一モーターコンソール (`0x01damiao_text.py`)
+#### 1️⃣ 単一モーターコンソール (`1_damiao_text.py`)
 
 motorbridge SDK を直接使用した単一モーターテスト、3 つの制御モードをサポート。
 
 **使用方法**：
 ```bash
-uv run python example/0x01damiao_text.py
+uv run python example/1_damiao_text.py
 ```
 
 **インタラクティブコマンド**：

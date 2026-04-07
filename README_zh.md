@@ -115,7 +115,7 @@ reBotArm_control_py/
 │   └── robot.yaml              # 关节参数配置
 ├── example/                    # 示例程序
 │   ├── 调试工具/
-│   │   ├── 0x01damiao_text.py      # 单电机控制台
+│   │   ├── 1_damiao_text.py        # 单电机控制台
 │   │   └── 2_zero_and_read.py      # 零点校准
 │   ├── 位置控制/
 │   │   ├── 3_mit_control.py        # MIT 控制
@@ -142,13 +142,13 @@ reBotArm_control_py/
 
 ### 调试工具
 
-#### 1️⃣ 单电机控制台 (`0x01damiao_text.py`)
+#### 1️⃣ 单电机控制台 (`1_damiao_text.py`)
 
 直接使用 motorbridge SDK 进行单电机测试，支持三种控制模式。
 
 **运行方式**：
 ```bash
-uv run python example/0x01damiao_text.py
+uv run python example/1_damiao_text.py
 ```
 
 **交互命令**：

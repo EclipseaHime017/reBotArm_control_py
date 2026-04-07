@@ -125,7 +125,7 @@ reBotArm_control_py/
 │   └── robot.yaml              # Configuración de parámetros de articulaciones
 ├── example/                    # Programas de ejemplo
 │   ├── Herramientas de Depuración/
-│   │   ├── 0x01damiao_text.py      # Consola mono-motor
+│   │   ├── 1_damiao_text.py        # Consola mono-motor
 │   │   └── 2_zero_and_read.py      # Calibración cero
 │   ├── Control de Posición/
 │   │   ├── 3_mit_control.py        # Control MIT
@@ -152,13 +152,13 @@ reBotArm_control_py/
 
 ### Herramientas de Depuración
 
-#### 1️⃣ Consola Mono-Motor (`0x01damiao_text.py`)
+#### 1️⃣ Consola Mono-Motor (`1_damiao_text.py`)
 
 Prueba directa de un solo motor con el SDK motorbridge, soporta tres modos de control.
 
 **Uso**:
 ```bash
-uv run python example/0x01damiao_text.py
+uv run python example/1_damiao_text.py
 ```
 
 **Comandos Interactivos**:
