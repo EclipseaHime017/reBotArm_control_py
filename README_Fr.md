@@ -31,8 +31,7 @@
 
 ### ✨ Fonctionnalités Principales
 
-- 🦾 **Support Multi-Moteurs** — Damiao, MyActuator, RobStride, trois marques de moteurs
-- 🎯 **Trois Modes de Contrôle** — MIT, POS_VEL, VEL pour différents scénarios d'application
+- 🦾 **Double Modèle** — B601-DM (moteurs Damiao) et B601-RS (moteurs RobStride)
 - 🧮 **Solveur Cinématique** — Cinématique directe/inverse basée sur Pinocchio
 - 🛤️ **Planification de Trajectoire** — Trajectoire géodésique SE(3) + suivi CLIK
 - 🔧 **Configuration Flexible** — Fichier de configuration YAML pour une adaptation rapide du matériel
@@ -105,9 +104,8 @@ ip -details link show can0
 
 | Marque de Moteur | Transmission | Configuration | Baud Rate |
 |-----------------|--------------|---------------|-----------|
-| **达秒 (Damiao)** | Pont Série | `dm-serial` | 921600 |
-| **达秒 (Damiao)** | Interface CAN | `socketcan` | 500000 |
-| **MyActuator** | Interface CAN | `socketcan` | 500000 |
+| **Damiao** | Pont Série | `dm-serial` | 921600 |
+| **Damiao** | Interface CAN | `socketcan` | 500000 |
 | **RobStride** | Interface CAN | `socketcan` | 500000 |
 
 :::tip
@@ -127,9 +125,6 @@ reBotArm_control_py/
 │   ├── Outils de Débogage/
 │   │   ├── 1_damiao_text.py        # Console mono-moteur
 │   │   └── 2_zero_and_read.py      # Calibration zéro
-│   ├── Contrôle de Position/
-│   │   ├── 3_mit_control.py        # Contrôle MIT
-│   │   └── 4_pos_vel_control.py    # Contrôle POS_VEL
 │   ├── Tests Cinématiques/
 │   │   ├── 5_fk_test.py            # Cinématique directe
 │   │   └── 6_ik_test.py            # Cinématique inverse
@@ -181,44 +176,6 @@ Définit automatiquement les zéros de toutes les articulations et affiche les a
 **Utilisation** :
 ```bash
 uv run python example/2_zero_and_read.py
-```
-
----
-
-### Contrôle de Position
-
-#### 3️⃣ Contrôle Spring-Damper MIT (`3_mit_control.py`)
-
-Contrôle de position multi-articulations en mode MIT avec ajustement PID en temps réel.
-
-**Format d'Entrée** :
-```
-<joint1_deg> <joint2_deg> ... <jointN_deg> [kp] [kd]
-```
-
-**Exemple** :
-```bash
-uv run python example/3_mit_control.py
-> 0 0 0 0 0 0          # Toutes les articulations à zéro
-> 10 -20 30 -40 50 60  # Définir des angles spécifiques
-> state                # Voir l'état
-> q                    # Quitter
-```
-
----
-
-#### 4️⃣ Contrôle Position-Vitesse POS_VEL (`4_pos_vel_control.py`)
-
-Contrôle PI à double boucle position-vitesse.
-
-**Format d'Entrée** :
-```
-<joint1_deg> <joint2_deg> ... <jointN_deg> [vlim]
-```
-
-**Utilisation** :
-```bash
-uv run python example/4_pos_vel_control.py
 ```
 
 ---
@@ -343,29 +300,6 @@ uv run python example/9_gravity_compensation.py
 **Sortie** :
 - Affichage en temps réel du couple attendu pour chaque articulation (N·m)
 - Appuyez sur `Ctrl+C` pour arrêter et déconnecter
-
----
-
-## 🎯 Comparaison des Modes de Contrôle
-
-| Mode | Principe | Application |
-|------|----------|-------------|
-| **MIT** | Couple = kp×pos_err + kd×vel_err | Contrôle compliant, contrôle d'impédance |
-| **POS_VEL** | Boucle de position PI + boucle de vitesse PI | Contrôle de position précis |
-| **VEL** | Commande de vitesse directe | Applications en mode vitesse |
-
----
-
-## 🙌 Références et Remerciements
-
-### Support Écosystème et Logiciel
-*   **[Pinocchio](https://stack-of-tasks.github.io/pinocchio/)** — Bibliothèque de dynamique des corps rigides
-*   **[motorbridge](https://github.com/damiao-robot/motorbridge)** — SDK moteur
-
-### Partenaires Matériels Principaux
-*   **[Damiao Technology](https://www.damiaokeji.com/)**
-*   **[MyActuator](https://myactuator.com/)**
-*   **[RobStride](https://robstride.com/)**
 
 ---
 

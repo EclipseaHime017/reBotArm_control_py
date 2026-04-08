@@ -31,8 +31,7 @@
 
 ### ✨ Core Features
 
-- 🦾 **Multi-Motor Support** — Damiao, MyActuator, RobStride three motor brands
-- 🎯 **Three Control Modes** — MIT, POS_VEL, VEL for different application scenarios
+- 🦾 **Dual Model Support** — B601-DM (Damiao motors) and B601-RS (RobStride motors)
 - 🧮 **Kinematics Solver** — Forward/Inverse kinematics based on Pinocchio
 - 🛤️ **Trajectory Planning** — SE(3) geodesic trajectory + CLIK tracking
 - 🔧 **Flexible Configuration** — YAML configuration file for quick hardware adaptation
@@ -107,7 +106,6 @@ ip -details link show can0
 |-------------|--------------|---------------|-----------|
 | **Damiao** | Serial Bridge | `dm-serial` | 921600 |
 | **Damiao** | CAN Interface | `socketcan` | 500000 |
-| **MyActuator** | CAN Interface | `socketcan` | 500000 |
 | **RobStride** | CAN Interface | `socketcan` | 500000 |
 
 :::tip
@@ -127,9 +125,6 @@ reBotArm_control_py/
 │   ├── Debug Tools/
 │   │   ├── 1_damiao_text.py        # Single motor console
 │   │   └── 2_zero_and_read.py      # Zero calibration
-│   ├── Position Control/
-│   │   ├── 3_mit_control.py        # MIT control
-│   │   └── 4_pos_vel_control.py    # POS_VEL control
 │   ├── Kinematics Tests/
 │   │   ├── 5_fk_test.py            # Forward kinematics
 │   │   └── 6_ik_test.py            # Inverse kinematics
@@ -181,44 +176,6 @@ Automatically set all joint zeros and display joint angles in real-time.
 **Usage**:
 ```bash
 uv run python example/2_zero_and_read.py
-```
-
----
-
-### Position Control
-
-#### 3️⃣ MIT Spring-Damper Control (`3_mit_control.py`)
-
-Multi-joint MIT mode position control with real-time PID adjustment.
-
-**Input Format**:
-```
-<joint1_deg> <joint2_deg> ... <jointN_deg> [kp] [kd]
-```
-
-**Example**:
-```bash
-uv run python example/3_mit_control.py
-> 0 0 0 0 0 0          # All joints to zero
-> 10 -20 30 -40 50 60  # Set specific angles
-> state                # View state
-> q                    # Quit
-```
-
----
-
-#### 4️⃣ POS_VEL Position-Velocity Control (`4_pos_vel_control.py`)
-
-Position-velocity dual-loop PI control.
-
-**Input Format**:
-```
-<joint1_deg> <joint2_deg> ... <jointN_deg> [vlim]
-```
-
-**Usage**:
-```bash
-uv run python example/4_pos_vel_control.py
 ```
 
 ---
@@ -343,29 +300,6 @@ uv run python example/9_gravity_compensation.py
 **Output**:
 - Real-time display of expected torque for each joint (N·m)
 - Press `Ctrl+C` to stop and disconnect
-
----
-
-## 🎯 Control Mode Comparison
-
-| Mode | Principle | Application |
-|------|-----------|-------------|
-| **MIT** | Torque = kp×pos_err + kd×vel_err | Compliant control, impedance control |
-| **POS_VEL** | PI position loop + PI velocity loop | Precise position control |
-| **VEL** | Direct velocity command | Velocity mode applications |
-
----
-
-## 🙌 References & Acknowledgments
-
-### Ecosystem & Software Support
-*   **[Pinocchio](https://stack-of-tasks.github.io/pinocchio/)** — Rigid body dynamics library
-*   **[motorbridge](https://github.com/damiao-robot/motorbridge)** — Motor SDK
-
-### Core Hardware Partners
-*   **[Damiao Technology](https://www.damiaokeji.com/)**
-*   **[MyActuator](https://myactuator.com/)**
-*   **[RobStride](https://robstride.com/)**
 
 ---
 

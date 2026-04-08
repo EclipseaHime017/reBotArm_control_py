@@ -31,8 +31,7 @@
 
 ### ✨ 主な機能
 
-- 🦾 **多モーター対応** — Damiao、MyActuator、RobStride の 3 つのモーターブランドをサポート
-- 🎯 **3 つの制御モード** — MIT、POS_VEL、VEL で様々なアプリケーションに対応
+- 🦾 **双型号サポート** — B601-DM（達妙モーター）と B601-RS（霊足モーター）
 - 🧮 **運動学ソルバー** — Pinocchio ベースの順/逆運動学計算
 - 🛤️ **軌道計画** — SE(3) 測地線軌道 + CLIK 追従
 - 🔧 **柔軟な設定** — YAML 設定ファイルでハードウェアの迅速な適応
@@ -105,13 +104,12 @@ ip -details link show can0
 
 | モーターブランド | 伝送方式 | 設定パラメータ | ボーレート |
 |-----------------|---------|---------------|-----------|
-| **達秒 (Damiao)** | シリアルブリッジ | `dm-serial` | 921600 |
-| **達秒 (Damiao)** | CAN インターフェース | `socketcan` | 500000 |
-| **MyActuator** | CAN インターフェース | `socketcan` | 500000 |
+| **達妙 (Damiao)** | シリアルブリッジ | `dm-serial` | 921600 |
+| **達妙 (Damiao)** | CAN インターフェース | `socketcan` | 500000 |
 | **RobStride** | CAN インターフェース | `socketcan` | 500000 |
 
 :::tip
-- 達秒モーターでシリアルブリッジを使用する場合、`--transport dm-serial` の設定が必要です
+- 達妙モーターでシリアルブリッジを使用する場合、`--transport dm-serial` の設定が必要です
 - フィードバック ID ルール：`feedback_id = motor_id + 0x10`
 :::
 
@@ -127,9 +125,6 @@ reBotArm_control_py/
 │   ├── デバッグツール/
 │   │   ├── 1_damiao_text.py        # 単一モーターコンソール
 │   │   └── 2_zero_and_read.py      # ゼロキャリブレーション
-│   ├── 位置制御/
-│   │   ├── 3_mit_control.py        # MIT 制御
-│   │   └── 4_pos_vel_control.py    # POS_VEL 制御
 │   ├── 運動学テスト/
 │   │   ├── 5_fk_test.py            # 順運動学
 │   │   └── 6_ik_test.py            # 逆運動学
@@ -181,44 +176,6 @@ uv run python example/1_damiao_text.py
 **使用方法**：
 ```bash
 uv run python example/2_zero_and_read.py
-```
-
----
-
-### 位置制御
-
-#### 3️⃣ MIT スプリングダンパ制御 (`3_mit_control.py`)
-
-多関節 MIT モード位置制御、リアルタイム PID 調整対応。
-
-**入力形式**：
-```
-<joint1_deg> <joint2_deg> ... <jointN_deg> [kp] [kd]
-```
-
-**例**：
-```bash
-uv run python example/3_mit_control.py
-> 0 0 0 0 0 0          # 全関節ゼロ位置
-> 10 -20 30 -40 50 60  # 特定の角度を設定
-> state                # 状態表示
-> q                    # 終了
-```
-
----
-
-#### 4️⃣ POS_VEL 位置速度制御 (`4_pos_vel_control.py`)
-
-位置 - 速度二重ループ PI 制御。
-
-**入力形式**：
-```
-<joint1_deg> <joint2_deg> ... <jointN_deg> [vlim]
-```
-
-**使用方法**：
-```bash
-uv run python example/4_pos_vel_control.py
 ```
 
 ---
@@ -343,29 +300,6 @@ uv run python example/9_gravity_compensation.py
 **出力**：
 - 各関節の期待トルクをリアルタイム表示（N·m）
 - `Ctrl+C` で停止して接続を切断
-
----
-
-## 🎯 制御モード比較
-
-| モード | 原理 | 適用シーン |
-|------|------|-----------|
-| **MIT** | トルク = kp×pos_err + kd×vel_err | 柔軟制御、インピーダンス制御 |
-| **POS_VEL** | PI 位置ループ + PI 速度ループ | 高精度位置制御 |
-| **VEL** | 直接速度指令 | 速度モードアプリケーション |
-
----
-
-## 🙌 参考文献と謝辞
-
-### エコシステムとソフトウェアサポート
-*   **[Pinocchio](https://stack-of-tasks.github.io/pinocchio/)** — 剛体动力学ライブラリ
-*   **[motorbridge](https://github.com/damiao-robot/motorbridge)** — モーター SDK
-
-### コアハードウェアパートナー
-*   **[Damiao Technology (達妙科技)](https://www.damiaokeji.com/)**
-*   **[MyActuator](https://myactuator.com/)**
-*   **[RobStride (霊足時代)](https://robstride.com/)**
 
 ---
 

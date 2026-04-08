@@ -17,12 +17,11 @@
 
 ## 📖 项目简介
 
-**reBotArm Control** 是一个面向 reBot Arm B601 机械臂的 Python 控制库，提供从底层电机控制到上层运动学解算的完整解决方案。
+**reBotArm Control** 是一个面向 reBot Arm B601 系列机械臂的 Python 控制库，提供从底层电机控制到上层运动学解算的完整解决方案。
 
 ### ✨ 核心特性
 
-- 🦾 **多电机支持** — Damiao、MyActuator、RobStride 三种电机品牌
-- 🎯 **三种控制模式** — MIT、POS_VEL、VEL，满足不同应用场景
+- 🦾 **双型号支持** — B601-DM（达妙电机）和 B601-RS（灵足电机）两款机械臂
 - 🧮 **运动学求解** — 基于 Pinocchio 的正/逆运动学计算
 - 🛤️ **轨迹规划** — SE(3) 测地线轨迹 + CLIK 跟踪
 - 🔧 **灵活配置** — YAML 配置文件，快速适配不同硬件
@@ -61,9 +60,9 @@ uv sync
 
 ## 🔌 硬件配置
 
-### 默认配置：达秒 USB2CAN 串口桥
+### 默认配置：达妙 USB2CAN 串口桥
 
-reBot Arm B601-DM 默认使用达秒 USB2CAN 串口桥模块。
+reBot Arm B601-DM 默认使用达妙 USB2CAN 串口桥模块。
 
 **硬件连接**：
 1. 将 USB2CAN 模块通过 USB 线连接到计算机
@@ -91,17 +90,16 @@ sudo ip link set can0 up type can bitrate 500000
 ip -details link show can0
 ```
 
-### 不同电机品牌配置
+### 电机品牌配置
 
 | 电机品牌 | 传输方式 | 配置参数 | 波特率 |
 |----------|---------|---------|--------|
-| **达秒 (Damiao)** | 串口桥 | `dm-serial` | 921600 |
-| **达秒 (Damiao)** | CAN 接口 | `socketcan` | 500000 |
-| **MyActuator** | CAN 接口 | `socketcan` | 500000 |
+| **达妙 (Damiao)** | 串口桥 | `dm-serial` | 921600 |
+| **达妙 (Damiao)** | CAN 接口 | `socketcan` | 500000 |
 | **RobStride** | CAN 接口 | `socketcan` | 500000 |
 
 :::tip
-- 达秒电机使用串口桥时，必须设置 `--transport dm-serial`
+- 达妙电机使用串口桥时，必须设置 `--transport dm-serial`
 - 反馈 ID 规则：`feedback_id = motor_id + 0x10`
 :::
 
@@ -145,7 +143,7 @@ reBotArm_control_py/
 
 #### 1️⃣ 单电机控制台 (`1_damiao_text.py`)
 
-直接使用 motorbridge SDK 进行单电机测试，支持三种控制模式。
+直接使用 motorbridge SDK 进行单电机测试。
 
 **运行方式**：
 ```bash
@@ -155,9 +153,6 @@ uv run python example/1_damiao_text.py
 **交互命令**：
 | 命令 | 说明 |
 |------|------|
-| `mit <pos_deg> [vel kp kd tau]` | MIT 模式 |
-| `posvel <pos_deg> [vlim]` | POS_VEL 模式 |
-| `vel <vel_rad_s>` | 纯速度模式 |
 | `enable` / `disable` | 使能/失能 |
 | `set_zero` | 设置零位 |
 | `state` | 查看状态 |
@@ -171,44 +166,6 @@ uv run python example/1_damiao_text.py
 **运行方式**：
 ```bash
 uv run python example/2_zero_and_read.py
-```
-
----
-
-### 位置控制
-
-#### 3️⃣ MIT 弹簧阻尼控制 (`3_mit_control.py`)
-
-多关节 MIT 模式位置控制，支持实时调整 PID 参数。
-
-**输入格式**：
-```
-<joint1_deg> <joint2_deg> ... <jointN_deg> [kp] [kd]
-```
-
-**示例**：
-```bash
-uv run python example/3_mit_control.py
-> 0 0 0 0 0 0          # 所有关节归零
-> 10 -20 30 -40 50 60  # 设置特定角度
-> state                # 查看状态
-> q                    # 退出
-```
-
----
-
-#### 4️⃣ POS_VEL 位置速度控制 (`4_pos_vel_control.py`)
-
-基于位置 - 速度双闭环 PI 控制。
-
-**输入格式**：
-```
-<joint1_deg> <joint2_deg> ... <jointN_deg> [vlim]
-```
-
-**运行方式**：
-```bash
-uv run python example/4_pos_vel_control.py
 ```
 
 ---
@@ -258,10 +215,10 @@ uv run python example/6_ik_test.py
 运行实机控制示例前，需要设置设备权限：
 
 ```bash
-# 设置串口设备权限（达秒 USB2CAN）
+# 设置串口设备权限（达妙 USB2CAN）
 sudo chmod 666 /dev/ttyACM0
 
-# 或使用 CAN 接口（如 can0）
+# 或设置 CAN 设备权限（如 can0）
 sudo chmod 666 /dev/can0
 ```
 :::
@@ -333,29 +290,6 @@ uv run python example/9_gravity_compensation.py
 **输出**：
 - 实时显示各关节期望力矩（N·m）
 - 按 `Ctrl+C` 停止并断开连接
-
----
-
-## 🎯 控制模式对比
-
-| 模式 | 原理 | 适用场景 |
-|------|------|----------|
-| **MIT** | 力矩 = kp×pos_err + kd×vel_err | 柔顺控制、阻抗控制 |
-| **POS_VEL** | PI 位置环 + PI 速度环 | 精确位置控制 |
-| **VEL** | 直接速度指令 | 速度模式应用 |
-
----
-
-## 🙌 参考与致谢
-
-### 生态与软件支持
-*   **[Pinocchio](https://stack-of-tasks.github.io/pinocchio/)** — 刚体动力学库
-*   **[motorbridge](https://github.com/damiao-robot/motorbridge)** — 电机 SDK
-
-### 核心硬件伙伴
-*   **[Damiao Technology (达妙科技)](https://www.damiaokeji.com/)**
-*   **[MyActuator](https://myactuator.com/)**
-*   **[RobStride (灵足时代)](https://robstride.com/)**
 
 ---
 
