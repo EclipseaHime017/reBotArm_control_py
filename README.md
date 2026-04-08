@@ -59,6 +59,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 #### Step 2. Sync Environment (Install All Dependencies)
 
 ```bash
+git clone https://github.com/vectorBH6/reBotArm_control_py.git
+cd reBotArm_control_py
 uv sync
 ```
 
