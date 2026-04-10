@@ -104,16 +104,12 @@ def main() -> None:
     arm.connect()
     print("\n[连接] OK")
 
-    # 零点校准
-    arm.set_zero()
-    print("[零点] OK")
-
     # 使能电机
     arm.enable()
     print("[使能] OK")
     # arm.disable()  # 先失能测试
 
-    # 切换到 MIT 模式（kp=2, kd=1，位置目标跟随当前电机位置）
+    # 切换到 MIT 模式（kp=0, kd=1，位置目标跟随当前电机位置）
     arm.mode_mit(
         kp=np.full(arm.num_joints, 2.0),
         kd=np.full(arm.num_joints, 1.0),
